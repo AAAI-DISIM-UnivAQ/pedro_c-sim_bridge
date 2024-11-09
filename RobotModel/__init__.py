@@ -1,5 +1,6 @@
 
-from pycsim import CSim
+from coppeliasim_zmqremoteapi_client import RemoteAPIClient
+from typing import Any
 import json
 import time
 
@@ -8,7 +9,7 @@ SENSOR_RETRY_SLEEP = 0.01
 
 
 class RobotModel:
-    def __init__(self, name: str, api: CSim):
+    def __init__(self, name: str, api: Any):
         self._api = api
         self._name = name
         self._sensors = None    # some kind of collection class
@@ -17,7 +18,7 @@ class RobotModel:
 
 class PioneerP3DX(RobotModel):
 
-    def __init__(self, name: str, api: CSim):
+    def __init__(self, name: str, api: Any):
         RobotModel.__init__(self, name, api)
         self._actuators = {}
         self._sensors = {}

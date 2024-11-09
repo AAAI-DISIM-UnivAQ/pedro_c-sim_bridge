@@ -1,9 +1,10 @@
 # pedro_c-sim_bridge
-Protocol bridge between PEDRO messaging system for robotics and Coppelia Simulator Remote API
+Protocol bridge between PEDRO messaging system for robotics and Coppelia Simulator 
+Remote API.
 
-Python robot controller that gets sensor data from V-REP simulator sending percepts 
+Python robot controller that gets sensor data from simulator sending percepts 
 to a PEDRO/QuProlog/Teleor program and receving motion commands (actions) from it. 
-Here we user the PioneerP3DX V-REP mobile robot model, but you can easily replace 
+Here we use the PioneerP3DX mobile robot model, but you can easily replace 
 it with the model you prefer just changing the names and the arrangement of the sensors
  and actuators.
 
@@ -11,7 +12,6 @@ it with the model you prefer just changing the names and the arrangement of the 
 
 Coppelia Robotics robot simulator, PEDRO server and QuLog/Teleor clients are needed:
 -  http://www.coppeliarobotics.com/
--  http://github.com/AAAI-DISIM-UnivAQ/vrep-api-python
 -  http://staff.itee.uq.edu.au/pjr/HomePages/PedroHome.html
     - remember in Ubuntu:
         - autoreconf -f -i 
@@ -26,23 +26,19 @@ You can play with different configuration of hierarchical control:
 
 Configuration for redis_control:
 
-    C-SIM robot --> robot_interface (Python3) --> REDIS --> your AI
-    C-SIM robot <-- robot_interface (Python3) <-- REDIS <-- your AI
+    robot --> robot_interface (Python3) --> REDIS --> your AI
+    robot <-- robot_interface (Python3) <-- REDIS <-- your AI
 
 
 Configuration for redis_control (+pedro):
 
-    C-SIM robot --> robot_interface (Python3) --> REDIS --> pedro_percepts -> PEDRO --> QuLog AI
-    C-SIM robot <-- robot_interface (Python3) <-- REDIS <-- pedro_actions <-- PEDRO <-- QuLog AI
+    robot --> robot_interface (Python3) --> REDIS --> pedro_percepts -> PEDRO --> QuLog AI
+    robot <-- robot_interface (Python3) <-- REDIS <-- pedro_actions <-- PEDRO <-- QuLog AI
 
 Configuration for pedro_control:
 
-    C-SIM robot --> robot_interface (Python3) --> PEDRO --> QuLog AI
-    C-SIM robot <-- robot_interface (Python3) <-- PEDRO <-- QuLog AI
-
-Like any C-SIM project, you have to put all the necessary file in a single working directory, 
-to have to C-SIM Remote API working. 
-Check the [csim-api-python](https://github.com/AAAI-DISIM-UnivAQ/csim-api-python) for details.
+    robot --> robot_interface (Python3) --> PEDRO --> QuLog AI
+    robot <-- robot_interface (Python3) <-- PEDRO <-- QuLog AI
 
 ## Robot control protocol
 
