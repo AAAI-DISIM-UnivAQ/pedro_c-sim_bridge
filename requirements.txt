@@ -1,2 +1,2 @@
-git+https://github.com/AAAI-DISIM-UnivAQ/csim-api-python.git
+coppeliasim_zmqremoteapi_client
 redis
