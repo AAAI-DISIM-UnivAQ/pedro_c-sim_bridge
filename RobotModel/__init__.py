@@ -1,5 +1,6 @@
 
 from coppeliasim_zmqremoteapi_client import RemoteAPIClient
+from typing import  Any
 import time
 
 SENSOR_RETRY = 40
@@ -8,13 +9,15 @@ SENSOR_RETRY_SLEEP = 0.01
 
 class RobotModel:
 
-    _api: RemoteAPIClient
+    _client: RemoteAPIClient
+    _sim: Any
     _name: str
     _sensors: dict
     _actuators: dict
 
     def __init__(self, name: str, host="localhost"):
-        self._api = RemoteAPIClient(host=host)
+        self._client = RemoteAPIClient(host=host)
+        self._sim = self._client.require("sim")
         self._name = name
         self._actuators = {}
         self._sensors = {}
@@ -23,13 +26,13 @@ class PioneerP3DX(RobotModel):
 
     def __init__(self, name: str, host="localhost"):
         RobotModel.__init__(self, name, host)
-        self._actuators['left'] = self._api.joint.with_velocity_control(name+"_leftMotor")
-        self._actuators['right'] = self._api.joint.with_velocity_control(name+"_rightMotor")
-        self._sensors['left'] = self._api.sensor.proximity(name+"_ultrasonicSensor3")
-        self._sensors['center'] = (self._api.sensor.proximity(name+"_ultrasonicSensor4"),
-                                   self._api.readProximity(name+"_ultrasonicSensor5"))
-        self._sensors['right'] = self._api.sensor.proximity(name+"_ultrasonicSensor6")
-        self._sensors['vision'] = self._api.sensor.vision("Vision_sensor")
+        self._actuators['left'] = self._sim.getObject("./leftMotor")
+        self._actuators['right'] = self._sim.getObject("./rightMotor")
+        self._sensors['left'] = self._sim.getObject("./ultrasonicSensor[3]")
+        self._sensors['center'] = (self._sim.getObject("./ultrasonicSensor[4]"),
+                                   self._sim.getObject("./ultrasonicSensor[5]"))
+        self._sensors['right'] = self._sim.getObject("./ultrasonicSensor[6]")
+        self._sensors['vision'] = self._sim.getObject("./camera")
         self._set_two_motor(0.0, 0.0)
 
     def turn_right(self, speed=2.0):
@@ -47,9 +50,9 @@ class PioneerP3DX(RobotModel):
     def move_backward(self, speed=2.0):
         self._set_two_motor(-speed, -speed)
 
-    def _set_two_motor(self, left: float, right: float):
-        self._actuators['left'].set_target_velocity(left)
-        self._actuators['right'].set_target_velocity(right)
+    def _set_two_motor(self, left_speed: float, right_speed: float):
+        self._sim.setJointTargetVelocity(self._actuators['left'], left_speed)
+        self._sim.setJointTargetVelocity(self._actuators['right'], right_speed)
 
     def right_distance(self):
         dis = 9999
@@ -74,6 +77,7 @@ class PioneerP3DX(RobotModel):
         return dis
 
     def center_distance(self):
+        a,b = 0, 0
         for _ in range(SENSOR_RETRY):
             a = self._sensors['center'][0].read()[1].distance()
             b = self._sensors['center'][1].read()[1].distance()
