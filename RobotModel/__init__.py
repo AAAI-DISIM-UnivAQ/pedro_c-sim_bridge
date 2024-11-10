@@ -1,6 +1,5 @@
 
 from coppeliasim_zmqremoteapi_client import RemoteAPIClient
-import json
 import time
 
 SENSOR_RETRY = 40
@@ -146,7 +145,7 @@ class PioneerP3DX(RobotModel):
                'vision': self.vision()
                }
         #print(126, 'percepts:', out)
-        print(json.dumps(out))
+        print(out)
         return out
 
     def get_signal(self, name):
