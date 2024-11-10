@@ -29,8 +29,8 @@ class PioneerP3DX(RobotModel):
         self._actuators['left'] = self._sim.getObject("./leftMotor")
         self._actuators['right'] = self._sim.getObject("./rightMotor")
         self._sensors['left'] = self._sim.getObject("./ultrasonicSensor[3]")
-        self._sensors['center'] = (self._sim.getObject("./ultrasonicSensor[4]"),
-                                   self._sim.getObject("./ultrasonicSensor[5]"))
+        self._sensors['center_l'] = self._sim.getObject("./ultrasonicSensor[4]")
+        self._sensors['center_r'] = self._sim.getObject("./ultrasonicSensor[5]")
         self._sensors['right'] = self._sim.getObject("./ultrasonicSensor[6]")
         self._sensors['vision'] = self._sim.getObject("./camera")
         self._set_two_motor(0.0, 0.0)
@@ -54,36 +54,28 @@ class PioneerP3DX(RobotModel):
         self._sim.setJointTargetVelocity(self._actuators['left'], left_speed)
         self._sim.setJointTargetVelocity(self._actuators['right'], right_speed)
 
-    def right_distance(self):
+    def _read_sensor(self, name: str):
+        assert name in self._sensors, f"Unknown sensor: {name}"
         dis = 9999
         for _ in range(SENSOR_RETRY):
             # try to read sensor up to 5 times
-            dis = self._sensors['right'].read()[1].distance()
+            dis = self._sim.readProximitySensor(self._sensors[name])[1]
             if dis > 0.01:
                 break
             time.sleep(SENSOR_RETRY_SLEEP)
         if dis > 9999: dis = 9999
         return dis
 
-    def left_distance(self):
-        dis = 9999
-        for _ in range(SENSOR_RETRY):
-            # try to read sensor up to 5 times
-            dis = self._sensors['left'].read()[1].distance()
-            if dis > 0.01:
-                break
-            time.sleep(SENSOR_RETRY_SLEEP)
-        if dis > 9999: dis = 9999
-        return dis
+    def right_distance(self, name: str):
+        return self._read_sensor(name)
+
+    def left_distance(self, name):
+        return self._read_sensor(name)
 
     def center_distance(self):
         a,b = 0, 0
-        for _ in range(SENSOR_RETRY):
-            a = self._sensors['center'][0].read()[1].distance()
-            b = self._sensors['center'][1].read()[1].distance()
-            if a > 0.01 and b > 0.01:
-                break
-            time.sleep(SENSOR_RETRY_SLEEP)
+        a = self._read_sensor("center_l")
+        b = self._read_sensor("center_r")
         dis = min(a,b)
         if dis > 9999: dis = 9999
         return dis
