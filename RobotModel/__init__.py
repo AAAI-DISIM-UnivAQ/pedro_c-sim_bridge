@@ -22,6 +22,13 @@ class RobotModel:
         self._actuators = {}
         self._sensors = {}
 
+    def start_simulation(self):
+        self._sim.startSimulation()
+
+    def stop_simulation(self):
+        self._sim.stopSimulation()
+
+
 class PioneerP3DX(RobotModel):
 
     def __init__(self, name: str, host="localhost"):

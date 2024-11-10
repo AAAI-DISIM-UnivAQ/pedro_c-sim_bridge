@@ -4,7 +4,7 @@
     (Redis and/or PEDRO)
 '''
 
-from RobotModel import PioneerP3DX
+from RobotModel import PioneerP3DX, RobotModel
 
 import time
 # from redis import Redis
@@ -21,6 +21,7 @@ class Control(object):
 
     def run(self):
         r = self.make_robot()
+        r.start_simulation()
         while True:
             r.process_commands(self.get_commands())
             perceptions = r.get_percepts()
@@ -34,8 +35,8 @@ class Control(object):
                 r.simulation.start()
 
 
-    def make_robot(self, host):
-        return None
+    def make_robot(self, host="localhost"):
+        return RobotModel(host)
 
     def process_initialize(self):
         pass
@@ -334,9 +335,9 @@ def demo_control():
     '''
 
     print('demo controller active')
-    vrep_demo = DemoControl()
-    vrep_demo.process_initialize()  # not needed in this case
-    vrep_demo.run()
+    csim_demo = DemoControl()
+    csim_demo.process_initialize()  # not needed in this case
+    csim_demo.run()
 
 
 def keyboard_control():
