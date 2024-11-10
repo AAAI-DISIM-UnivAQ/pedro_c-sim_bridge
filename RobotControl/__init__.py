@@ -39,9 +39,8 @@ class Control(object):
                 perceptions = r.get_percepts()
                 self.process_percepts(perceptions)
                 time.sleep(self._sleep_time)
-                # print(f'sim state: {api.simxGetSimulationState("")}')
-                simStop = False
-                if self._stop or simStop:
+                sim_stop = False
+                if self._stop or sim_stop:
                     api.simulation.pause()
                     key = input('Press RETURN')
                     self._stop = False

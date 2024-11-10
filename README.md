@@ -67,3 +67,5 @@ __Actions__:
     move_forward(speed)
 
 of type floating point, meters per seconds.
+
+Select your preferred robot controller in the `main.py` program

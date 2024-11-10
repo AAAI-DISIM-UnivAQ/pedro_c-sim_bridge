@@ -1,6 +1,5 @@
 
 from coppeliasim_zmqremoteapi_client import RemoteAPIClient
-from typing import Any
 import json
 import time
 
@@ -9,26 +8,29 @@ SENSOR_RETRY_SLEEP = 0.01
 
 
 class RobotModel:
-    def __init__(self, name: str, api: Any):
-        self._api = api
-        self._name = name
-        self._sensors = None    # some kind of collection class
-        self._actuators = None  # idem
 
+    _api: RemoteAPIClient
+    _name: str
+    _sensors: dict
+    _actuators: dict
+
+    def __init__(self, name: str, host="localhost"):
+        self._api = RemoteAPIClient(host=host)
+        self._name = name
+        self._actuators = {}
+        self._sensors = {}
 
 class PioneerP3DX(RobotModel):
 
-    def __init__(self, name: str, api: Any):
-        RobotModel.__init__(self, name, api)
-        self._actuators = {}
-        self._sensors = {}
-        # self._signals = {}
-        self._actuators['left'] = api.joint.with_velocity_control(name+"_leftMotor")
-        self._actuators['right'] = api.joint.with_velocity_control(name+"_rightMotor")
-        self._sensors['left'] = api.sensor.proximity(name+"_ultrasonicSensor3")
-        self._sensors['center'] = (api.sensor.proximity(name+"_ultrasonicSensor4"), api.sensor.proximity(name+"_ultrasonicSensor5"))
-        self._sensors['right'] = api.sensor.proximity(name+"_ultrasonicSensor6")
-        self._sensors['vision'] = api.sensor.vision("Vision_sensor")
+    def __init__(self, name: str, host="localhost"):
+        RobotModel.__init__(self, name, host)
+        self._actuators['left'] = self._api.joint.with_velocity_control(name+"_leftMotor")
+        self._actuators['right'] = self._api.joint.with_velocity_control(name+"_rightMotor")
+        self._sensors['left'] = self._api.sensor.proximity(name+"_ultrasonicSensor3")
+        self._sensors['center'] = (self._api.sensor.proximity(name+"_ultrasonicSensor4"),
+                                   self._api.readProximity(name+"_ultrasonicSensor5"))
+        self._sensors['right'] = self._api.sensor.proximity(name+"_ultrasonicSensor6")
+        self._sensors['vision'] = self._api.sensor.vision("Vision_sensor")
         self._set_two_motor(0.0, 0.0)
 
     def turn_right(self, speed=2.0):
@@ -51,6 +53,7 @@ class PioneerP3DX(RobotModel):
         self._actuators['right'].set_target_velocity(right)
 
     def right_distance(self):
+        dis = 9999
         for _ in range(SENSOR_RETRY):
             # try to read sensor up to 5 times
             dis = self._sensors['right'].read()[1].distance()
@@ -61,6 +64,7 @@ class PioneerP3DX(RobotModel):
         return dis
 
     def left_distance(self):
+        dis = 9999
         for _ in range(SENSOR_RETRY):
             # try to read sensor up to 5 times
             dis = self._sensors['left'].read()[1].distance()
@@ -82,8 +86,6 @@ class PioneerP3DX(RobotModel):
         return dis
 
     def display(self, code):
-        # res = self._api.simxCallScriptFunction(0, 'debug', self._api.sim_scripttype_mainscript,
-        #                                          'show_debug', code, self._api.simx_opmode_blocking)
         print(f'display:{code}')
 
     def get_vision(self, vision_result):
@@ -148,8 +150,8 @@ class PioneerP3DX(RobotModel):
         return out
 
     def get_signal(self, name):
-        returnCode, signalValue = self._api.simxGetIntegerSignal(0, name, 0)
-        return signalValue
+        # returnCode, signalValue = self._api.simxGetIntegerSignal(0, name, 0)
+        return 0
 
     def process_commands(self, commands):
         # print(commands)

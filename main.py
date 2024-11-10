@@ -1,10 +1,11 @@
 
 # To run in Python3
 
-'''
-    Copyright @giodegas 2018, 2020
-    Class to control a PioneerP3DX inside a V-REP robot simulator
-'''
+"""
+    Copyright @giodegas 2018, 2020, 2024
+    Class to control a PioneerP3DX inside Coppelia robot simulator
+"""
+
 
 from RobotControl import demo_control, keyboard_control, redis_control, pedro_control, teleo_control
 
@@ -14,7 +15,7 @@ from RobotControl import demo_control, keyboard_control, redis_control, pedro_co
 ## MAIN - Select your control function
 
 if __name__ == '__main__':
-    #demo_control()
-    keyboard_control()
-    #pedro_control()
-    #teleo_control()
+    demo_control()
+    # keyboard_control()
+    # pedro_control()
+    # teleo_control()
