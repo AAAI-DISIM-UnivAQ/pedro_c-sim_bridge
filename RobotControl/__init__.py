@@ -14,40 +14,27 @@ import threading
 
 
 class Control(object):
-    def __init__(self, host, port, sleep_time):
-        self._host = host
-        self._port = port
+    def __init__(self, sleep_time):
         self._sleep_time = sleep_time
         self._last_percept_str = ''
         self._stop = False
-        try:
-            self._api = None # TBD
-            # number returnCode=simxSetIntegerSignal(number clientID,string signalName,number signalValue,number operationMode)
-            # self._api.simxSetIntegerSignal(0, 'stop_loop', 0, 0)
-        except AttributeError as e:
-            print(27, e)
-            exit(-1)
-        except :
-            print('V-REP not responding')
-            exit(-1)
 
     def run(self):
-        with self._api as api:
-            r = self.make_robot(api)
-            while True:
-                r.process_commands(self.get_commands())
-                perceptions = r.get_percepts()
-                self.process_percepts(perceptions)
-                time.sleep(self._sleep_time)
-                sim_stop = False
-                if self._stop or sim_stop:
-                    api.simulation.pause()
-                    key = input('Press RETURN')
-                    self._stop = False
-                    api.simulation.start()
+        r = self.make_robot()
+        while True:
+            r.process_commands(self.get_commands())
+            perceptions = r.get_percepts()
+            self.process_percepts(perceptions)
+            time.sleep(self._sleep_time)
+            sim_stop = False
+            if self._stop or sim_stop:
+                r.simulation.pause()
+                key = input('Press RETURN')
+                self._stop = False
+                r.simulation.start()
 
 
-    def make_robot(self, api):
+    def make_robot(self, host):
         return None
 
     def process_initialize(self):
@@ -60,14 +47,14 @@ class Control(object):
         pass
 
 class DemoControl(Control):
-    def __init__(self, host='127.0.0.1', port=19997, sleep_time=0.01):
-        super().__init__(host, port, sleep_time)
+    def __init__(self, sleep_time=0.01):
+        super().__init__(sleep_time)
         self._rl = 0 # right sensor reading
         self._ll = 0 # left
         self._cl = 0 # center
 
-    def make_robot(self, api):
-        return PioneerP3DX('Pioneer_p3dx', api)
+    def make_robot(self, host="localhost"):
+        return PioneerP3DX('Pioneer_p3dx', host)
 
     def process_percepts(self, percepts):
         self._ll = percepts['left']
@@ -94,14 +81,14 @@ class DemoControl(Control):
 
 
 class KeyboardControl(Control):
-    def __init__(self, host='127.0.0.1', port=19997, sleep_time=0.01):
-        super().__init__(host, port, sleep_time)
+    def __init__(self, sleep_time=0.01):
+        super().__init__(sleep_time)
         self._rl = 0 # right sensor reading
         self._ll = 0 # left
         self._cl = 0 # center
 
-    def make_robot(self, api):
-        return PioneerP3DX('Pioneer_p3dx', api)
+    def make_robot(self, host="localhost"):
+        return PioneerP3DX('Pioneer_p3dx', host)
 
     def process_percepts(self, percepts):
         self._ll = percepts['left']
@@ -109,9 +96,7 @@ class KeyboardControl(Control):
         self._cl = percepts['center']
 
     def get_commands(self):
-        self._api.simulation.pause()
         command = input('WSAD? ')
-        self._api.simulation.start()
         if len(command)==0:
             return []
         if command[0] .lower() == 'w':
