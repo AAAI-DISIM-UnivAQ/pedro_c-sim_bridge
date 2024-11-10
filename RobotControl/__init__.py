@@ -67,15 +67,15 @@ class DemoControl(Control):
         ll = self._ll
         cl = self._cl
         if 0.01 < rl < 10:
-            return [{'cmd': 'turn_left', 'args': [0.5]}]
+            return [{'cmd': 'turn_left', 'args': [0.1]}]
         elif 0.01 < ll < 10:
-            return [{'cmd': 'turn_right', 'args': [0.5]}]
+            return [{'cmd': 'turn_right', 'args': [0.1]}]
         else:
             speed = 10.0
             if cl<10:
-                speed = -1
-            else:
                 speed = 1
+            else:
+                speed = -1
             if speed > 5.0:
                 speed = 5.0
             return [{'cmd': 'move_forward', 'args': [speed]}]
