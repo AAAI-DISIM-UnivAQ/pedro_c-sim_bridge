@@ -129,15 +129,15 @@ class PioneerP3DX(RobotModel):
             return '', 0, 0, 0
 
     def vision(self):
-        code, state, vision_result = self._sensors['vision'].read()
-        position, size, base, height = self.get_vision(vision_result)
-        out = (position, size, base, height)
-        return out
+        # code, state, vision_result = self._sensors['vision'].read()
+        # position, size, base, height = self.get_vision(vision_result)
+        # out = (position, size, base, height)
+        return (0, 0, 0, 0)
 
     def get_percepts(self):
-        out = {'left': self.left_distance(),
+        out = {'left': self.left_distance("left"),
                'center': self.center_distance(),
-               'right': self.right_distance(),
+               'right': self.right_distance("right"),
                'vision': self.vision()
                }
         #print(126, 'percepts:', out)
