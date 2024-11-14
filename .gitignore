@@ -1,0 +1,70 @@
+.idea/
+
+# Byte-compiled python files
+*.pyc
+*.pyo
+
+# Byte-compiled toaste files
+__.pyc
+__.pyo
+
+# C extensions
+*.so
+*.dll
+*.dylib
+
+# C++ header files
+*.h
+*.hpp
+
+# C source files
+*.c
+*.cpp
+
+# Object files
+*.o
+*.obj
+
+# Shared library files
+*.so
+*.dll
+*.dylib
+
+# Windows image file executables
+*.exe
+
+# Windows runtime files
+*.dll
+*.exe
+
+# Windows device driver files
+*.sys
+
+# Intellisense files
+*.ijs
+
+# Windows debug files
+*.pdb
+
+# Visual Studio cache files
+*.ncb
+*.suo
+*.bzr
+*.gitignore
+
+# Windows temporary files
+*.tmp
+*.tmp~
+*.swp
+
+# IDE temporary files
+*.iml
+*.ipr
+*.iws
+
+# Test and coverage files
+*.pytest_cache
+*.coverage
+*.pycachec
+
+# Jupyter Notebook
