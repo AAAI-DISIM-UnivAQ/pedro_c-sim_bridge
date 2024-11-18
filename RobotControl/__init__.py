@@ -20,12 +20,13 @@ class Control(object):
         self._stop = False
 
     def run(self):
-        r = self.make_robot()
+        r = self.make_robot(sim_stepping=True)
         r.start_simulation()
         while True:
             r.process_commands(self.get_commands())
             perceptions = r.get_percepts()
             self.process_percepts(perceptions)
+            r.step()
             time.sleep(self._sleep_time)
             sim_stop = False
             if self._stop or sim_stop:
@@ -35,8 +36,9 @@ class Control(object):
                 r.simulation.start()
 
 
-    def make_robot(self, host="localhost"):
-        return RobotModel(host)
+
+    def make_robot(self, host="localhost", sim_stepping=False):
+        return RobotModel(host, sim_stepping)
 
     def process_initialize(self):
         pass
@@ -54,8 +56,8 @@ class DemoControl(Control):
         self._ll = 0 # left
         self._cl = 0 # center
 
-    def make_robot(self, host="localhost"):
-        return PioneerP3DX('Pioneer_p3dx', host)
+    def make_robot(self, host="localhost", sim_stepping=False):
+        return PioneerP3DX('Pioneer_p3dx', host, sim_stepping)
 
     def process_percepts(self, percepts):
         self._ll = percepts['left']

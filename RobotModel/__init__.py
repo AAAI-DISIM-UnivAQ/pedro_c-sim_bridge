@@ -53,12 +53,17 @@ class RobotModel:
     _sensors: dict[str, SimSensor]
     _actuators: dict[str, SimActuator]
 
-    def __init__(self, name: str, host="localhost"):
+    def __init__(self, name: str, host="localhost", sim_stepping=False):
         self._name = name
         self._client = RemoteAPIClient(host=host)
         self._sim = self._client.require("sim")
+        self._sim.setStepping(sim_stepping)
         self._sensors = {}
         self._actuators = {}
+
+    def step(self):
+        print("step")
+        self._sim.step()
 
     def start_simulation(self):
         self._sim.startSimulation()
@@ -69,8 +74,8 @@ class RobotModel:
 
 class PioneerP3DX(RobotModel):
 
-    def __init__(self, name: str, host="localhost"):
-        RobotModel.__init__(self, name, host)
+    def __init__(self, name: str, host="localhost", sim_stepping=False):
+        RobotModel.__init__(self, name, host, sim_stepping)
         self._actuators['left'] = SimActuator('./leftMotor', self._sim)
         self._actuators['right'] = SimActuator('./rightMotor', self._sim)
         self._sensors['left'] = ProximitySensor("./ultrasonicSensor[2]", self._sim)
