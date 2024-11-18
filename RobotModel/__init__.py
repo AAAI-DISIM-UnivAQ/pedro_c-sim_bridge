@@ -6,21 +6,59 @@ import time
 SENSOR_RETRY = 40
 SENSOR_RETRY_SLEEP = 0.01
 
+class SimSensor:
+
+    _name: str
+    _sensor_handle: Any
+    _value: Any
+
+    def __init__(self, name, sim):
+        self._name = name
+        self._sensor_handle = sim.getObjectHandle(self._name)
+        self._value = None
+
+    def read(self, sim):
+        pass
+
+class ProximitySensor(SimSensor):
+
+    def read(self, sim):
+        self._value = sim.readProximitySensor(self._sensor_handle)
+        return self._value
+
+class VisionSensor(SimSensor):
+
+    def read(self, sim):
+        self._value = sim.getVisionSensorCharImage(self._sensor_handle)
+        return self._value
+
+class SimActuator:
+
+    _name : str
+    _actuator_handle: Any
+
+    def __init__(self, name, sim):
+        self._name = name
+        self._actuator_handle = sim.getObjectHandle(self._name)
+
+    def actuate(self, sim: Any, speed: float):
+        self._sim.setJointTargetVelocity(self._actuator_handle, speed)
+
 
 class RobotModel:
 
     _client: RemoteAPIClient
     _sim: Any
     _name: str
-    _sensors: dict
-    _actuators: dict
+    _sensors: dict[str, SimSensor]
+    _actuators: dict[str, SimActuator]
 
     def __init__(self, name: str, host="localhost"):
+        self._name = name
         self._client = RemoteAPIClient(host=host)
         self._sim = self._client.require("sim")
-        self._name = name
-        self._actuators = {}
         self._sensors = {}
+        self._actuators = {}
 
     def start_simulation(self):
         self._sim.startSimulation()
@@ -33,14 +71,18 @@ class PioneerP3DX(RobotModel):
 
     def __init__(self, name: str, host="localhost"):
         RobotModel.__init__(self, name, host)
-        self._actuators['left'] = self._sim.getObject("./leftMotor")
-        self._actuators['right'] = self._sim.getObject("./rightMotor")
-        self._sensors['left'] = self._sim.getObject("./ultrasonicSensor[2]")
-        self._sensors['center_l'] = self._sim.getObject("./ultrasonicSensor[3]")
-        self._sensors['center_r'] = self._sim.getObject("./ultrasonicSensor[4]")
-        self._sensors['right'] = self._sim.getObject("./ultrasonicSensor[5]")
-        self._sensors['vision'] = self._sim.getObject("./camera")
+        self._actuators['left'] = SimActuator('./leftMotor', self._sim)
+        self._actuators['right'] = SimActuator('./rightMotor', self._sim)
+        self._sensors['left'] = ProximitySensor("./ultrasonicSensor[2]", self._sim)
+        self._sensors['center_l'] = ProximitySensor("./ultrasonicSensor[3]", self._sim)
+        self._sensors['center_r'] = ProximitySensor("./ultrasonicSensor[4]", self._sim)
+        self._sensors['right'] = ProximitySensor("./ultrasonicSensor[5]", self._sim)
+        self._sensors['vision'] = VisionSensor("./visionSensor", self._sim)
         self._set_two_motor(0.0, 0.0)
+
+    def _set_two_motor(self, left_speed: float, right_speed: float):
+        self._sim.setJointTargetVelocity(self._actuators['left']._actuator_handle, left_speed)
+        self._sim.setJointTargetVelocity(self._actuators['right']._actuator_handle, right_speed)
 
     def turn_right(self, speed=2.0):
         print('turn_right', speed)
@@ -57,16 +99,12 @@ class PioneerP3DX(RobotModel):
     def move_backward(self, speed=2.0):
         self._set_two_motor(-speed, -speed)
 
-    def _set_two_motor(self, left_speed: float, right_speed: float):
-        self._sim.setJointTargetVelocity(self._actuators['left'], left_speed)
-        self._sim.setJointTargetVelocity(self._actuators['right'], right_speed)
-
     def _read_sensor(self, name: str):
         assert name in self._sensors, f"Unknown sensor: {name}"
         dis = 9999
         for _ in range(SENSOR_RETRY):
             # try to read sensor up to 5 times
-            dis = self._sim.readProximitySensor(self._sensors[name])[1]
+            dis = self._sensors[name].read(sim=self._sim)[1]
             if dis > 0.01:
                 break
             time.sleep(SENSOR_RETRY_SLEEP)
